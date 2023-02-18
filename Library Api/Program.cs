@@ -1,4 +1,7 @@
+using Library_Api.Models;
 using Library_Api.Services;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +11,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.Configure<LibraryDatabaseSettings>(builder.Configuration.GetSection(nameof(LibraryDatabaseSettings)));
+
+builder.Services.AddSingleton<ILibraryDatabaseSettings>(setting => setting.GetRequiredService<IOptions<LibraryDatabaseSettings>>().Value);
+builder.Services.AddSingleton<IMongoClient>(client => new MongoClient(builder.Configuration.GetValue<string>("LibraryDatabaseSettings:ConnectionString")));
 
 builder.Services.AddScoped<IBookService, BookService>();
 

@@ -1,4 +1,4 @@
-﻿using Library_Api.model;
+﻿using Library_Api.Models;
 
 namespace Library_Api.Services
 {
