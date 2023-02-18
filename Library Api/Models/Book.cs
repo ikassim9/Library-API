@@ -8,11 +8,11 @@ public class Book
 
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public string Id { get; set; } = String.Empty;
 
     [BsonElement("book_title")]
-    public string? BookTitle { get; set; }
+    public string Title { get; set; } = String.Empty;
     [BsonElement("author")]
-    public string? Author { get; set; }
+    public string Author { get; set; } = String.Empty;
 
 }
