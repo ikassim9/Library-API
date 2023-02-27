@@ -1,5 +1,4 @@
 ﻿using Library_Api.Models;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace Library_Api.Services
@@ -19,11 +18,29 @@ namespace Library_Api.Services
 
         public List<Book> GetBooks()
         {
-
             return _books.Find(book => true).ToList();
+        }
+
+        public Book Get(string id)
+        {
+            return _books.Find(book => book.Id == id).FirstOrDefault();
+        }
 
 
+        public Book AddBook(Book book)
+        {
+            _books.InsertOne(book);
+            return book;
+        }
 
+        public void UpdateBook(string bookId, Book book)
+        {
+            _books.ReplaceOne(book => book.Id == bookId, book);
+        }
+
+        public void DeleteBook(string id)
+        {
+            _books.DeleteOne(book => book.Id == id);
         }
     }
 }

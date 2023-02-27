@@ -20,6 +20,13 @@ builder.Services.AddSingleton<IMongoClient>(client => new MongoClient(builder.Co
 
 builder.Services.AddScoped<IBookService, BookService>();
 
+builder.Services.AddCors(options => options.AddPolicy("default", policy => {
+
+    policy.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
+
+})
+    );
+
 var app = builder.Build();
 
 
@@ -30,6 +37,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("default");
 
 app.UseHttpsRedirection();
 
