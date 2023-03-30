@@ -1,4 +1,5 @@
-﻿using Library_Api.Models;
+﻿using Amazon.S3;
+using Library_Api.Models;
 using Library_Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,13 @@ namespace Library_Api.Controllers
     public class BookController : ControllerBase
     {
         private readonly IBookService _bookService;
-
-        public BookController(IBookService bookService)
+        private readonly IConfiguration _config;
+        private readonly IS3Service _s3;
+        public BookController(IBookService bookService, IConfiguration config, IS3Service s3)
         {
             _bookService = bookService;
-
+            _config = config;
+            _s3 = s3;
         }
 
         [HttpGet]
@@ -46,12 +49,50 @@ namespace Library_Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Book> AddBook([FromBody] Book book)
+        public async Task<ActionResult<Book>> AddBook([FromForm] Book book)
         {
 
-            _bookService.AddBook(book);
+            var file = Request.Form.Files[0];
+            await using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
 
-            return CreatedAtAction(nameof(Get), new { bookId = book.Id }, book);
+            var fileExt = Path.GetExtension(file.FileName);
+            var objName = $"{Guid.NewGuid()}.{fileExt}";
+            var bucketName = _config["AwsConfiguration:BucketName"];
+    
+
+            var s3Obj = new S3Object()
+            {
+                BucketName = bucketName,
+                InputStream = memoryStream,
+                Name = objName
+            };
+
+            var creds = new AwsCredentials()
+            {
+                AwsAcessKey = _config["AwsConfiguration:AcessKey"],
+                AwsSecretKey = _config["AwsConfiguration:SecretKey"],
+
+            };
+
+            var result = await _s3.UploadFileAsync(s3Obj, creds);
+
+
+            if(result.StatusCode == 200)
+            {
+
+                book.BookCover = $"https://{bucketName}.s3.amazonaws.com/{objName}";
+                _bookService.AddBook(book);
+
+                return CreatedAtAction(nameof(Get), new { bookId = book.Id }, book);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+          
+   
         }
 
         [HttpPut("{bookId}")]
@@ -85,6 +126,5 @@ namespace Library_Api.Controllers
 
             return NoContent();
         }
-             
     }
 }

@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+ 
 
 builder.Services.Configure<LibraryDatabaseSettings>(builder.Configuration.GetSection(nameof(LibraryDatabaseSettings)));
 
@@ -19,7 +19,7 @@ builder.Services.AddSingleton<ILibraryDatabaseSettings>(setting => setting.GetRe
 builder.Services.AddSingleton<IMongoClient>(client => new MongoClient(builder.Configuration.GetValue<string>("LibraryDatabaseSettings:ConnectionString")));
 
 builder.Services.AddScoped<IBookService, BookService>();
-
+builder.Services.AddScoped<IS3Service, S3Service>();
 builder.Services.AddCors(options => options.AddPolicy("default", policy => {
 
     policy.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
