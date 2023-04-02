@@ -16,11 +16,13 @@ public class Book
     [BsonElement("author")]
     public string Author { get; set; } = String.Empty;
     [BsonElement("publication_date")]
-    public string PublicationDate { get; set; } = String.Empty;
+    public string? PublicationDate { get; set; } = String.Empty;
 
     [BsonElement("description")]
-    public string Description { get; set; } = String.Empty;
+    public string? Description { get; set; } = String.Empty;
 
     [BsonElement("book_cover")]
     public string BookCover { get; set; } = String.Empty;
+
+    public string BookCoverUrl { get; set; } = String.Empty;
 }

@@ -13,7 +13,7 @@ namespace Library_Api.Controllers
     {
         private readonly IBookService _bookService;
         private readonly IConfiguration _config;
-        private readonly IS3Service _s3;
+        private readonly IS3Service _s3;      
         public BookController(IBookService bookService, IConfiguration config, IS3Service s3)
         {
             _bookService = bookService;
@@ -82,6 +82,7 @@ namespace Library_Api.Controllers
             {
 
                 book.BookCover = $"https://{bucketName}.s3.amazonaws.com/{objName}";
+                book.BookCoverUrl = objName;
                 _bookService.AddBook(book);
 
                 return CreatedAtAction(nameof(Get), new { bookId = book.Id }, book);
@@ -113,7 +114,7 @@ namespace Library_Api.Controllers
         }
 
         [HttpDelete("{bookId}")]
-        public ActionResult<Book> DeleteBook(string bookId)
+        public async Task<ActionResult<Book>> DeleteBook(string bookId)
         {
             Book existingBook = _bookService.Get(bookId);
 
@@ -122,9 +123,29 @@ namespace Library_Api.Controllers
                 return NotFound($"Book with id {bookId} does not exist");
             }
 
-            _bookService.DeleteBook(bookId);
+            var creds = new AwsCredentials()
+            {
+                AwsAcessKey = _config["AwsConfiguration:AcessKey"],
+                AwsSecretKey = _config["AwsConfiguration:SecretKey"],
 
-            return NoContent();
+            };
+
+            var bucketName = _config["AwsConfiguration:BucketName"];
+
+
+            var result = await _s3.DeleteFileAsync(existingBook.BookCoverUrl, bucketName, creds);
+
+            if (result.StatusCode == 200)
+            {
+                _bookService.DeleteBook(bookId);
+                return NoContent();
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError);
+
+
+
+
         }
     }
 }

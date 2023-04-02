@@ -2,6 +2,7 @@ using Library_Api.Models;
 using Library_Api.Services;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Amazon.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 

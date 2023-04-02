@@ -10,5 +10,7 @@ namespace Library_Api.Services
          */
         public Task<S3ResponseDto> UploadFileAsync(S3Object s3Object, AwsCredentials awsCredentials);
 
+         public Task<S3ResponseDto> DeleteFileAsync(string bookId, string bucketName, AwsCredentials awsCredentials);
+ 
     }
 }
