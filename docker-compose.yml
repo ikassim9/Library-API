@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  server:
+    image: libraryapi
+    build:
+      context: .
+      dockerfile: Library Api/Dockerfile
+
+    ports:
+    - 5106:80
+    - 7106:443
+  client:
+    image: library-app
+    build:
+      context: ../library-app
+      dockerfile: ./Dockerfile
+    ports:
+      - 4200:80
